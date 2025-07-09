@@ -1,3 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.pyc
+*.pyd
+*.pyo
+*.egg-info/
+.Python
+build/
+dist/
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Editor directories and files
+.idea/                     # PyCharm
+.vscode/                   # VS Code
+*.sublime-project
+*.sublime-workspace
+.komodotools/              # Komodo IDE
+.komodoproject             # Komodo IDE
+
+# Jupyter Notebook files
+.ipynb_checkpoints/
+*.ipynb
+
 results/
 
 .env
