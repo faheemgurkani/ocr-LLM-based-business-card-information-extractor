@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+gradio
+pytesseract
+Pillow
+requests
+pandas
+openpyxl
+python-dotenv
