@@ -1,6 +1,8 @@
 import gradio as gr
 import requests
 
+
+
 BACKEND_URL = "http://localhost:8000/extract"
 
 # def process_card(image):
@@ -23,17 +25,21 @@ def process_card(image: PIL.Image.Image):
     files = {"file": ("card.png", buffer, "image/png")}
     
     response = requests.post(BACKEND_URL, files=files)
+
     if response.status_code == 200:
         data = response.json()
+
         return data["structured_data"], data["ocr_text"]
     else:
         return {"error": "Failed to process image."}, ""
 
 with gr.Blocks() as demo:
     gr.Markdown("## Business Card Parser")
+
     with gr.Row():
         image_input = gr.Image(type="pil")
         result_json = gr.JSON(label="Parsed Contact Info")
+
     ocr_textbox = gr.Textbox(label="OCR Text")
     btn = gr.Button("Extract")
 

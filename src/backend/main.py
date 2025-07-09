@@ -36,9 +36,11 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
+
+
 load_dotenv()
 
-# === CONFIGURATION ===
+# Configurations
 MISTRAL_API_URL = "https://api.mistral.ai/v1/chat/completions"
 MISTRAL_API_KEY = os.getenv("MISTRAL_API_KEY")
 
@@ -53,16 +55,15 @@ CSV_PATH = "results/contacts.csv"
 
 os.makedirs("results", exist_ok=True)
 
-# Ensure CSV file exists
+# Ensuring that the CSV file exists
 if not os.path.exists(CSV_PATH):
     pd.DataFrame(columns=["name", "title", "company", "email", "phone", "website", "address"]).to_csv(CSV_PATH, index=False)
 
-# === UTILITY FUNCTIONS ===
+# Utility functions
 import re
 import json
 
 def extract_json_from_response(response_text):
-    # Extract JSON inside ```json ... ```
     match = re.search(r"```json\s*(\{.*?\})\s*```", response_text, re.DOTALL)
     if match:
         json_str = match.group(1)
@@ -73,6 +74,7 @@ def extract_json_from_response(response_text):
 def extract_text_from_image(image_bytes: bytes) -> str:
     image = Image.open(io.BytesIO(image_bytes))
     text = pytesseract.image_to_string(image)
+    
     return text.strip()
 
 # def generate_structured_data(ocr_text: str) -> dict:
@@ -138,8 +140,7 @@ OCR Extracted Text:
     response = requests.post(url, headers=headers, json=payload)
     result = response.json()
 
-    # # 🔍 Log full result for debugging
-    # print("🧾 Mistral API response:", result) # For, testing
+    # print("Mistral API response:", result) # For, testing
 
     # if "choices" not in result:
     #     raise ValueError(f"Mistral API Error: {result}")
@@ -149,6 +150,7 @@ OCR Extracted Text:
     content = result["choices"][0]["message"]["content"]
     # structured_data = extract_json_from_response(content)
     structured_data = json.loads(content)
+    
     return structured_data
 
 def save_to_csv(parsed_data: dict):
@@ -156,7 +158,7 @@ def save_to_csv(parsed_data: dict):
     df = pd.concat([df, pd.DataFrame([parsed_data])], ignore_index=True)
     df.to_csv(CSV_PATH, index=False)
 
-# === FASTAPI SETUP ===
+# FastAPI setup
 app = FastAPI()
 
 app.add_middleware(
@@ -175,19 +177,20 @@ async def extract(file: UploadFile = File(...)):
     # save_to_csv(structured_data)
     # return {"ocr_text": ocr_text, "structured_data": structured_data}
 
-    print("📥 Reading image...")
+    # For, testing
+    print("Reading image...")
     image_bytes = await file.read()
 
-    print("🧾 Running OCR...")
+    print("Running OCR...")
     ocr_text = extract_text_from_image(image_bytes)
-    print("📄 OCR Text:", ocr_text[:100])  # Preview first 100 chars
+    print("OCR Text:", ocr_text[:100])  # Preview first 100 chars
 
-    print("🤖 Calling LLM...")
+    print("Calling LLM...")
     structured_data = generate_structured_data(ocr_text)
-    print("✅ LLM Response:", structured_data)
+    print("LLM Response:", structured_data)
 
-    print("💾 Saving to CSV...")
+    print("Saving to CSV...")
     save_to_csv(structured_data)
-    print("✅ Done")
+    print("Done")
 
     return {"ocr_text": ocr_text, "structured_data": structured_data}
